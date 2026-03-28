@@ -35,13 +35,13 @@ CREATE SCHEMA IF NOT EXISTS HOTEL_DB.HOTEL;
 ### Step 2 — Table: GUESTS
 
 ```sql
-CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.GUESTS (
+CREATE OR REPLACE TABLE GUESTS (
     ID          NUMBER AUTOINCREMENT PRIMARY KEY,
     NAME        VARCHAR(100) NOT NULL,
     EMAIL       VARCHAR(100),
     PHONE       VARCHAR(20),
     NATIONALITY VARCHAR(50)
-)
+);
 ```
 
 | Column | Type | Description |
@@ -51,6 +51,16 @@ CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.GUESTS (
 | EMAIL | VARCHAR(100) | Contact email |
 | PHONE | VARCHAR(20) | Contact phone |
 | NATIONALITY | VARCHAR(50) | Country of origin |
+
+**Insert script:**
+```sql
+INSERT INTO GUESTS (NAME, EMAIL, PHONE, NATIONALITY) VALUES
+    ('James Carter',   'james@email.com',  '+1-555-1001',  'American'),
+    ('Sofia Reyes',    'sofia@email.com',  '+63-917-2002', 'Filipino'),
+    ('Ahmed Al-Farsi', 'ahmed@email.com',  '+971-50-3003', 'Emirati'),
+    ('Yuki Tanaka',    'yuki@email.com',   '+81-90-4004',  'Japanese'),
+    ('Emma Dubois',    'emma@email.com',   '+33-6-5005',   'French');
+```
 
 **Sample rows inserted:**
 | ID | NAME | EMAIL | NATIONALITY |
@@ -66,12 +76,12 @@ CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.GUESTS (
 ### Step 3 — Table: ROOM_TYPES
 
 ```sql
-CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.ROOM_TYPES (
+CREATE OR REPLACE TABLE ROOM_TYPES (
     ID              NUMBER AUTOINCREMENT PRIMARY KEY,
     TYPE_NAME       VARCHAR(50)   NOT NULL,
     DESCRIPTION     VARCHAR(200),
     PRICE_PER_NIGHT NUMERIC(10,2) NOT NULL
-)
+);
 ```
 
 | Column | Type | Description |
@@ -80,6 +90,15 @@ CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.ROOM_TYPES (
 | TYPE_NAME | VARCHAR(50) | Category name (Standard, Deluxe, Suite, Presidential) |
 | DESCRIPTION | VARCHAR(200) | Short description of the room type |
 | PRICE_PER_NIGHT | NUMERIC(10,2) | Nightly rate in USD |
+
+**Insert script:**
+```sql
+INSERT INTO ROOM_TYPES (TYPE_NAME, DESCRIPTION, PRICE_PER_NIGHT) VALUES
+    ('Standard',     'Cozy room with queen bed, TV and Wi-Fi',             80.00),
+    ('Deluxe',       'Spacious room with king bed and city view',          150.00),
+    ('Suite',        'Luxury suite with living area and kitchenette',      280.00),
+    ('Presidential', 'Top floor presidential suite with private terrace',  500.00);
+```
 
 **Sample rows inserted:**
 | ID | TYPE_NAME | PRICE_PER_NIGHT |
@@ -94,13 +113,13 @@ CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.ROOM_TYPES (
 ### Step 4 — Table: ROOMS
 
 ```sql
-CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.ROOMS (
+CREATE OR REPLACE TABLE ROOMS (
     ID           NUMBER AUTOINCREMENT PRIMARY KEY,
-    ROOM_TYPE_ID NUMBER NOT NULL REFERENCES HOTEL_DB.HOTEL.ROOM_TYPES(ID),
+    ROOM_TYPE_ID NUMBER NOT NULL REFERENCES ROOM_TYPES(ID),
     ROOM_NUMBER  VARCHAR(10) NOT NULL,
     FLOOR        NUMBER,
     STATUS       VARCHAR(20) DEFAULT 'available'
-)
+);
 ```
 
 | Column | Type | Description |
@@ -110,6 +129,21 @@ CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.ROOMS (
 | ROOM_NUMBER | VARCHAR(10) | Room identifier e.g. 101, 202 |
 | FLOOR | NUMBER | Floor number |
 | STATUS | VARCHAR(20) | `available` / `occupied` / `maintenance` |
+
+**Insert script:**
+```sql
+INSERT INTO ROOMS (ROOM_TYPE_ID, ROOM_NUMBER, FLOOR, STATUS) VALUES
+    (1, '101', 1, 'available'),
+    (1, '102', 1, 'occupied'),
+    (1, '103', 1, 'available'),
+    (2, '201', 2, 'available'),
+    (2, '202', 2, 'occupied'),
+    (2, '203', 2, 'maintenance'),
+    (3, '301', 3, 'available'),
+    (3, '302', 3, 'occupied'),
+    (4, '401', 4, 'available'),
+    (4, '402', 4, 'occupied');
+```
 
 **Sample rows inserted (10 rooms):**
 | ROOM_NUMBER | FLOOR | TYPE | STATUS |
@@ -130,16 +164,16 @@ CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.ROOMS (
 ### Step 5 — Table: RESERVATIONS
 
 ```sql
-CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.RESERVATIONS (
+CREATE OR REPLACE TABLE RESERVATIONS (
     ID          NUMBER AUTOINCREMENT PRIMARY KEY,
     REF         VARCHAR(20) UNIQUE NOT NULL,
-    GUEST_ID    NUMBER NOT NULL REFERENCES HOTEL_DB.HOTEL.GUESTS(ID),
-    ROOM_ID     NUMBER NOT NULL REFERENCES HOTEL_DB.HOTEL.ROOMS(ID),
+    GUEST_ID    NUMBER NOT NULL REFERENCES GUESTS(ID),
+    ROOM_ID     NUMBER NOT NULL REFERENCES ROOMS(ID),
     CHECK_IN    DATE NOT NULL,
     CHECK_OUT   DATE NOT NULL,
     TOTAL_PRICE NUMERIC(10,2) NOT NULL,
     STATUS      VARCHAR(20) DEFAULT 'confirmed'
-)
+);
 ```
 
 | Column | Type | Description |
@@ -152,6 +186,16 @@ CREATE OR REPLACE TABLE HOTEL_DB.HOTEL.RESERVATIONS (
 | CHECK_OUT | DATE | Departure date |
 | TOTAL_PRICE | NUMERIC(10,2) | Total booking amount |
 | STATUS | VARCHAR(20) | `confirmed` / `checked_in` / `checked_out` / `cancelled` |
+
+**Insert script:**
+```sql
+INSERT INTO RESERVATIONS (REF, GUEST_ID, ROOM_ID, CHECK_IN, CHECK_OUT, TOTAL_PRICE, STATUS) VALUES
+    ('HB-10001', 1, 2,  '2026-04-10', '2026-04-13', 240.00,  'checked_in'),
+    ('HB-10002', 2, 5,  '2026-04-11', '2026-04-14', 450.00,  'confirmed'),
+    ('HB-10003', 3, 8,  '2026-04-12', '2026-04-15', 840.00,  'confirmed'),
+    ('HB-10004', 4, 10, '2026-04-13', '2026-04-16', 1500.00, 'checked_in'),
+    ('HB-10005', 5, 1,  '2026-04-20', '2026-04-22', 160.00,  'confirmed');
+```
 
 **Sample rows inserted:**
 | REF | GUEST | ROOM | CHECK_IN | CHECK_OUT | TOTAL | STATUS |
